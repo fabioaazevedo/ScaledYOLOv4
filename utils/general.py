@@ -440,6 +440,21 @@ class BCEBlurWithLogitsLoss(nn.Module):
         return loss.mean()
 
 
+def calc_kldiv(u1, u2, cov1, cov2):
+	t2 = -np.size(cov1)
+	if t2==-1:
+		t1 = np.log(cov2/cov1)
+		t3 = (u1-u2)/cov2*(u1-u2)
+		t4 = cov1/cov2
+	else:
+		t1 = np.log(np.linalg.det(cov2)/np.linalg.det(cov1))
+		t2 = t2/2
+		t3 = np.matmul((u1-u2).T, np.matmul(np.linalg.inv(cov2), (u1-u2)))
+		t4 = np.matrix.trace(np.matmul(np.linalg.inv(cov2), cov1))
+
+	return (t1 + t2 + t3 + t4)/2
+
+
 def compute_loss(p, targets, model):  # predictions, targets, model
     device = targets.device
     lcls, lbox, lobj = torch.zeros(1, device=device), torch.zeros(1, device=device), torch.zeros(1, device=device)
@@ -477,6 +492,8 @@ def compute_loss(p, targets, model):  # predictions, targets, model
             pwh = (ps[:, 2:4].sigmoid() * 2) ** 2 * anchors[i]
             pbox = torch.cat((pxy, pwh), 1).to(device)  # predicted box
             giou = bbox_iou(pbox.T, tbox[i], x1y1x2y2=False, CIoU=True)  # giou(prediction, target)
+
+
             lbox += (1.0 - giou).mean()  # giou loss
 
             # Objectness
