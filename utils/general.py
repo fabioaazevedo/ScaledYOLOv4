@@ -493,7 +493,8 @@ def compute_loss(p, targets, model):  # predictions, targets, model
             pbox = torch.cat((pxy, pwh), 1).to(device)  # predicted box
             giou = bbox_iou(pbox.T, tbox[i], x1y1x2y2=False, CIoU=True)  # giou(prediction, target)
 
-            #print(tbox[i], "NUMBERRRRRR1")
+            print("TBOX", tbox[i])
+            print("PBOX", pbox)
             #print(tbox[i][0], "NUMBERRRRRR1")
 
             u2 = tbox[i][:,0:2] #torch.tensor([[tbox[i][0]],[tbox[i][1]]])
@@ -510,19 +511,25 @@ def compute_loss(p, targets, model):  # predictions, targets, model
             cov1w = (pbox_aux[:,2]**2)/16
             cov1h = (pbox_aux[:,3]**2)/16
 
-            t1 = torch.log(cov2w/cov1w)
+            print("TCOVW", cov2w)
+            print("TCOVH", cov2h)
+
+            print("PCOVW", cov1w)
+            print("PCOVH", cov1h)
+
+            t1 = torch.log(torch.div(cov2w,cov1w))
             t2 = -1
             t3 = ((u1[:,0]-u2[:,0])**2)*cov2w
             t4 = torch.div(cov1w,cov2w)
 
             kldiv = t1 + t2 + t3 + t4
 
-            t1 = torch.log(cov2h/cov1h)
+            t1 = torch.log(torch.div(cov2h,cov1h))
             t2 = -1
             t3 = ((u1[:,1]-u2[:,1])**2)*cov2h
             t4 = torch.div(cov1h,cov2h)
 
-            kldiv = t1 + t2 + t3 + t4
+            kldiv += t1 + t2 + t3 + t4
 
             #print(u1, u2, "NUMBERRRRRR")
             #lbox += (1.0 - giou).mean()  # giou loss
