@@ -493,6 +493,8 @@ def compute_loss(p, targets, model):  # predictions, targets, model
             pbox = torch.cat((pxy, pwh), 1).to(device)  # predicted box
             giou = bbox_iou(pbox.T, tbox[i], x1y1x2y2=False, CIoU=True)  # giou(prediction, target)
 
+            print(tbox[i], "NUMBERRRRRR1")
+
             u2 = torch.tensor([[tbox[i][0]],[tbox[i][1]]])
             cov2 = torch.tensor([[(tbox[i][2]**2)/16,0],[0,(tbox[i][3]**2)/16]])
 
