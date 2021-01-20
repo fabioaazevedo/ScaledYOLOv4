@@ -522,7 +522,7 @@ def compute_loss(p, targets, model):  # predictions, targets, model
 
             kldiv = t1 + t2 + t3 + t4
 
-            print(u1, u2, "NUMBERRRRRR")
+            #print(u1, u2, "NUMBERRRRRR")
             #lbox += (1.0 - giou).mean()  # giou loss
 
             kldiv /= 2
