@@ -520,7 +520,7 @@ def compute_loss(p, targets, model):  # predictions, targets, model
             t1 = torch.log(cov2h/cov1h)
             t2 = -1
             t3 = ((u1[:,1]-u2[:,1])**2)*cov2h
-            t4 = torch.div(cov1h/cov2h)
+            t4 = torch.div(cov1h,cov2h)
 
             kldiv = t1 + t2 + t3 + t4
 
