@@ -502,11 +502,11 @@ def compute_loss(p, targets, model):  # predictions, targets, model
             cov2w = (tbox[i][:,2]**2)/16
             cov2h = (tbox[i][:,3]**2)/16
 
-            u1 = pbox[i][:,0:2] #torch.tensor([[pbox[i][0]],[pbox[i][1]]])
+            u1 = pbox[:,0:2] #torch.tensor([[pbox[i][0]],[pbox[i][1]]])
             #cov1 = torch.tensor([[(pbox[i][2]**2)/16,0],[0,(pbox[i][3]**2)/16]])
 
-            cov1w = (pbox[i][:,2]**2)/16
-            cov1h = (pbox[i][:,3]**2)/16
+            cov1w = (pbox[:,2]**2)/16
+            cov1h = (pbox[:,3]**2)/16
 
             t1 = torch.log(cov2w/cov1w)
             t2 = -1
