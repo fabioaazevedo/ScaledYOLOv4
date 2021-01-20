@@ -441,16 +441,16 @@ class BCEBlurWithLogitsLoss(nn.Module):
 
 
 def calc_kldiv(u1, u2, cov1, cov2):
-	t2 = -np.size(cov1)
+	t2 = -torch.numel(cov1)
 	if t2==-1:
-		t1 = np.log(cov2/cov1)
+		t1 = torch.log(cov2/cov1)
 		t3 = (u1-u2)/cov2*(u1-u2)
 		t4 = cov1/cov2
 	else:
-		t1 = np.log(np.linalg.det(cov2)/np.linalg.det(cov1))
+		t1 = torch.log(torch.det(cov2)/torch.det(cov1))
 		t2 = t2/2
-		t3 = np.matmul((u1-u2).T, np.matmul(np.linalg.inv(cov2), (u1-u2)))
-		t4 = np.matrix.trace(np.matmul(np.linalg.inv(cov2), cov1))
+		t3 = torch.matmul((u1-u2).T, torch.matmul(torch.inverse(cov2), (u1-u2)))
+		t4 = torch.trace(torch.matmul(torch.inverse(cov2), cov1))
 
 	return (t1 + t2 + t3 + t4)/2
 
@@ -493,8 +493,16 @@ def compute_loss(p, targets, model):  # predictions, targets, model
             pbox = torch.cat((pxy, pwh), 1).to(device)  # predicted box
             giou = bbox_iou(pbox.T, tbox[i], x1y1x2y2=False, CIoU=True)  # giou(prediction, target)
 
+            u2 = torch.tensor([[tbox[i][0]],[tbox[i][1]]])
+            cov2 = torch.tensor([[(tbox[i][2]**2)/16,0],[0,(tbox[i][3]**2)/16]])
 
-            lbox += (1.0 - giou).mean()  # giou loss
+            u1 = torch.tensor([[pbox[i][0]],[pbox[i][1]]])
+            cov1 = torch.tensor([[(pbox[i][2]**2)/16,0],[0,(pbox[i][3]**2)/16]])
+
+            print(u1, u2, cov1, cov2, "NUMBERRRRRR")
+            #lbox += (1.0 - giou).mean()  # giou loss
+            lbox += calc_kldiv(u1, u2, cov1, cov2)
+            
 
             # Objectness
             tobj[b, a, gj, gi] = (1.0 - model.gr) + model.gr * giou.detach().clamp(0).type(tobj.dtype)  # giou ratio
