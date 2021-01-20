@@ -496,15 +496,37 @@ def compute_loss(p, targets, model):  # predictions, targets, model
             print(tbox[i], "NUMBERRRRRR1")
             print(tbox[i][0], "NUMBERRRRRR1")
 
-            u2 = tbox[i][0:2].T #torch.tensor([[tbox[i][0]],[tbox[i][1]]])
-            cov2 = torch.tensor([[(tbox[i][2]**2)/16,0],[0,(tbox[i][3]**2)/16]])
+            u2 = tbox[i][:,0:2] #torch.tensor([[tbox[i][0]],[tbox[i][1]]])
+            #cov2 = torch.tensor([[(tbox[i][2]**2)/16,0],[0,(tbox[i][3]**2)/16]])
 
-            u1 = pbox[i][0:2].T #torch.tensor([[pbox[i][0]],[pbox[i][1]]])
-            cov1 = torch.tensor([[(pbox[i][2]**2)/16,0],[0,(pbox[i][3]**2)/16]])
+            cov2w = (tbox[i][:,2]**2)/16
+            cov2h = (tbox[i][:,3]**2)/16
 
-            print(u1, u2, cov1, cov2, "NUMBERRRRRR")
+            u1 = pbox[i][:,0:2] #torch.tensor([[pbox[i][0]],[pbox[i][1]]])
+            #cov1 = torch.tensor([[(pbox[i][2]**2)/16,0],[0,(pbox[i][3]**2)/16]])
+
+            cov1w = (pbox[i][:,2]**2)/16
+            cov1h = (pbox[i][:,3]**2)/16
+
+            t1 = torch.log(cov2w/cov1w)
+            t2 = -1
+            t3 = ((u1[:,0]-u2[:,0])**2)*cov2w
+            t4 = cov1w/cov2w
+
+            kldiv = t1 + t2 + t3 + t4
+
+            t1 = torch.log(cov2h/cov1h)
+            t2 = -1
+            t3 = ((u1[:,1]-u2[:,1])**2)*cov2h
+            t4 = cov1h/cov2h
+
+            kldiv = t1 + t2 + t3 + t4
+
+            print(u1, u2, "NUMBERRRRRR")
             #lbox += (1.0 - giou).mean()  # giou loss
-            lbox += calc_kldiv(u1, u2, cov1, cov2)
+
+            kldiv /= 2
+            lbox += kldiv.mean()
             
 
             # Objectness
