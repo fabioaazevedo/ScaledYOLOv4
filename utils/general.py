@@ -494,11 +494,12 @@ def compute_loss(p, targets, model):  # predictions, targets, model
             giou = bbox_iou(pbox.T, tbox[i], x1y1x2y2=False, CIoU=True)  # giou(prediction, target)
 
             print(tbox[i], "NUMBERRRRRR1")
+            print(tbox[i][0], "NUMBERRRRRR1")
 
-            u2 = torch.tensor([[tbox[i][0]],[tbox[i][1]]])
+            u2 = tbox[i][0:2].T #torch.tensor([[tbox[i][0]],[tbox[i][1]]])
             cov2 = torch.tensor([[(tbox[i][2]**2)/16,0],[0,(tbox[i][3]**2)/16]])
 
-            u1 = torch.tensor([[pbox[i][0]],[pbox[i][1]]])
+            u1 = pbox[i][0:2].T #torch.tensor([[pbox[i][0]],[pbox[i][1]]])
             cov1 = torch.tensor([[(pbox[i][2]**2)/16,0],[0,(pbox[i][3]**2)/16]])
 
             print(u1, u2, cov1, cov2, "NUMBERRRRRR")
